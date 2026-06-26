@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-clinical-50 text-story-trust antialiased;
+  }
+
+  html.dark body {
+    @apply bg-slate-900 text-slate-100;
+  }
+
+  html.text-large {
+    font-size: 112.5%;
+  }
+
+  html.high-contrast .dashboard-card {
+    @apply border-2 border-story-trust;
+  }
+
+  html.high-contrast.dark .dashboard-card {
+    @apply border-white;
+  }
+
+  html.reduce-motion *,
+  html.reduce-motion *::before,
+  html.reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-clinical-600;
+  }
+}
+
+@layer components {
+  .dashboard-card {
+    @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800;
+  }
+
+  .dashboard-section-title {
+    @apply font-display text-2xl font-semibold text-story-trust;
+  }
+}
+
+@layer utilities {
+  .timeline-rail {
+    background: linear-gradient(
+      to bottom,
+      theme("colors.clinical.200") 0%,
+      theme("colors.clinical.500") 50%,
+      theme("colors.clinical.200") 100%
+    );
+  }
+
+  .scroll-mt-24 {
+    scroll-margin-top: 6rem;
+  }
+}
