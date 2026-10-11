@@ -1,4 +1,4 @@
-export default function DashboardHeader({ stats, patientId, onMenuClick, onRefresh, refreshing, onAddData }) {
+export default function DashboardHeader({ stats, patientId, userName, onMenuClick, onRefresh, refreshing, onAddData, onLogout }) {
   const today = new Intl.DateTimeFormat(undefined, {
     weekday: "long",
     month: "long",
@@ -22,7 +22,7 @@ export default function DashboardHeader({ stats, patientId, onMenuClick, onRefre
           <div>
             <p className="text-sm text-slate-500">{today}</p>
             <h2 className="font-display text-xl font-semibold text-story-trust sm:text-2xl">
-              Welcome back
+              {userName ? `Welcome back, ${userName}` : "Welcome back"}
             </h2>
           </div>
         </div>
@@ -35,6 +35,15 @@ export default function DashboardHeader({ stats, patientId, onMenuClick, onRefre
               className="hidden rounded-xl border border-clinical-600 px-4 py-2.5 text-sm font-semibold text-clinical-700 hover:bg-clinical-50 sm:inline-flex dark:border-clinical-400 dark:text-clinical-300"
             >
               + Add data
+            </button>
+          )}
+          {onLogout && (
+            <button
+              type="button"
+              onClick={onLogout}
+              className="inline-flex items-center rounded-xl border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              Log out
             </button>
           )}
           {stats?.lastUpdated && stats.lastUpdated !== "—" && (

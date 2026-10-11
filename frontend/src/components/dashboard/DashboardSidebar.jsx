@@ -1,4 +1,9 @@
 const ICONS = {
+  profile: (
+    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-8 10a4 4 0 014-4h0a4 4 0 014 4v1H8v-1z" />
+    </svg>
+  ),
   overview: (
     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
@@ -31,7 +36,7 @@ const ICONS = {
   ),
 };
 
-export default function DashboardSidebar({ sections, activeSection, onNavigate, onAddData, open }) {
+export default function DashboardSidebar({ sections, activeSection, onNavigate, onAddData, onOpenProfile, open }) {
   return (
     <aside
       className={`dashboard-sidebar fixed inset-y-0 left-0 z-40 w-64 transform border-r border-clinical-700/20 bg-story-trust text-white transition-transform duration-200 lg:translate-x-0 ${
@@ -47,6 +52,17 @@ export default function DashboardSidebar({ sections, activeSection, onNavigate, 
         </div>
 
         <nav className="flex-1 space-y-1 px-3 py-4">
+          {onOpenProfile && (
+            <button
+              type="button"
+              onClick={onOpenProfile}
+              className="mb-2 flex w-full items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold text-clinical-100 transition-colors hover:bg-white/10"
+            >
+              {ICONS.profile}
+              Profile
+            </button>
+          )}
+
           {sections.map((section) => {
             const isActive = activeSection === section.id;
             return (

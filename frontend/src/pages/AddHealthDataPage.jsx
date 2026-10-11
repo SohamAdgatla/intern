@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import CameraCapture from "../components/CameraCapture";
-import { login } from "../api/auth";
+import { login, signup } from "../api/auth";
 import { ensureCsrfCookie } from "../api/client";
 import { fetchMeasurementTypes, submitHealthEntry } from "../api/patientInput";
 
@@ -12,7 +12,13 @@ const FALLBACK_TYPES = [
   { loinc_code: "1558-6", display: "Fasting blood glucose", unit: "mg/dL", reference_low: 70, reference_high: 99 },
 ];
 
-export default function AddHealthDataPage({ onBack, onSuccess }) {
+export default function AddHealthDataPage({
+  onBack,
+  onSuccess,
+  onAuthenticated,
+  initialAuthMode = "login",
+  isAuthenticated = false,
+}) {
   const [types, setTypes] = useState(FALLBACK_TYPES);
   const [loincCode, setLoincCode] = useState(FALLBACK_TYPES[0].loinc_code);
   const [value, setValue] = useState("");
@@ -24,13 +30,21 @@ export default function AddHealthDataPage({ onBack, onSuccess }) {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [givenName, setGivenName] = useState("");
+  const [familyName, setFamilyName] = useState("");
   const [loggedIn, setLoggedIn] = useState(DEMO_MODE);
   const [loginError, setLoginError] = useState(null);
+  const [authMode, setAuthMode] = useState(initialAuthMode);
 
   const selected = types.find((t) => t.loinc_code === loincCode) || types[0];
 
   useEffect(() => {
     if (DEMO_MODE) return;
+    if (!isAuthenticated) {
+      setLoggedIn(false);
+      return;
+    }
+
     ensureCsrfCookie()
       .then(() => fetchMeasurementTypes())
       .then((data) => {
@@ -39,17 +53,33 @@ export default function AddHealthDataPage({ onBack, onSuccess }) {
         setLoggedIn(true);
       })
       .catch(() => setLoggedIn(false));
-  }, []);
+  }, [isAuthenticated]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError(null);
     try {
       await ensureCsrfCookie();
-      await login(username, password);
+      const user = await login(username, password);
       const data = await fetchMeasurementTypes();
       setTypes(data);
       setLoggedIn(true);
+      onAuthenticated?.(user);
+    } catch (err) {
+      setLoginError(err.message);
+    }
+  };
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+    try {
+      await ensureCsrfCookie();
+      const user = await signup(username, password, givenName, familyName);
+      const data = await fetchMeasurementTypes();
+      setTypes(data);
+      setLoggedIn(true);
+      onAuthenticated?.(user);
     } catch (err) {
       setLoginError(err.message);
     }
@@ -94,7 +124,7 @@ export default function AddHealthDataPage({ onBack, onSuccess }) {
     }
   };
 
-  if (!loggedIn && !DEMO_MODE) {
+  if ((!loggedIn || !isAuthenticated) && !DEMO_MODE) {
     return (
       <div className="min-h-screen bg-clinical-50 px-4 py-10 dark:bg-slate-900">
         <div className="mx-auto max-w-md dashboard-card p-8">
@@ -102,9 +132,31 @@ export default function AddHealthDataPage({ onBack, onSuccess }) {
             ← Back to dashboard
           </button>
           <h1 className="mt-4 font-display text-2xl font-semibold text-story-trust dark:text-white">
-            Sign in to add health data
+            {authMode === "login" ? "Sign in to add health data" : "Create your patient account"}
           </h1>
-          <form onSubmit={handleLogin} className="mt-6 space-y-4">
+          <form onSubmit={authMode === "login" ? handleLogin : handleSignup} className="mt-6 space-y-4">
+            {authMode === "signup" && (
+              <>
+                <label className="block text-sm font-semibold text-slate-600">
+                  First name
+                  <input
+                    value={givenName}
+                    onChange={(e) => setGivenName(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3"
+                    autoComplete="given-name"
+                  />
+                </label>
+                <label className="block text-sm font-semibold text-slate-600">
+                  Last name
+                  <input
+                    value={familyName}
+                    onChange={(e) => setFamilyName(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3"
+                    autoComplete="family-name"
+                  />
+                </label>
+              </>
+            )}
             <label className="block text-sm font-semibold text-slate-600">
               Username
               <input
@@ -121,12 +173,22 @@ export default function AddHealthDataPage({ onBack, onSuccess }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3"
-                autoComplete="current-password"
+                autoComplete={authMode === "login" ? "current-password" : "new-password"}
               />
             </label>
             {loginError && <p className="text-sm text-red-600">{loginError}</p>}
             <button type="submit" className="w-full rounded-xl bg-clinical-600 py-3 font-semibold text-white">
-              Sign in
+              {authMode === "login" ? "Sign in" : "Create account"}
+            </button>
+            <button
+              type="button"
+              className="w-full text-sm font-semibold text-clinical-700"
+              onClick={() => {
+                setAuthMode((current) => (current === "login" ? "signup" : "login"));
+                setLoginError(null);
+              }}
+            >
+              {authMode === "login" ? "Need an account? Create one" : "Already have an account? Sign in"}
             </button>
           </form>
         </div>

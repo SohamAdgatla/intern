@@ -3,6 +3,7 @@ import DashboardHeader from "./DashboardHeader";
 import DashboardSidebar from "./DashboardSidebar";
 
 const SECTIONS = [
+  { id: "profile", label: "Profile" },
   { id: "overview", label: "Overview" },
   { id: "care-timeline", label: "Medical Timeline" },
   { id: "lab-trends", label: "Lab Analytics" },
@@ -17,7 +18,10 @@ export default function DashboardLayout({
   onRefresh,
   refreshing,
   patientId,
+  userName,
   onAddData,
+  onOpenProfile,
+  onLogout,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
@@ -35,6 +39,7 @@ export default function DashboardLayout({
         activeSection={activeSection}
         onNavigate={scrollToSection}
         onAddData={onAddData}
+        onOpenProfile={onOpenProfile}
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
@@ -52,10 +57,12 @@ export default function DashboardLayout({
         <DashboardHeader
           stats={stats}
           patientId={patientId}
+          userName={userName}
           onMenuClick={() => setSidebarOpen(true)}
           onRefresh={onRefresh}
           refreshing={refreshing}
           onAddData={onAddData}
+          onLogout={onLogout}
         />
 
         <main id="main-content" className="flex-1 px-4 py-6 sm:px-6 lg:px-8">

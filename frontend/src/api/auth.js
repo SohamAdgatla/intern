@@ -1,5 +1,12 @@
 import { apiFetch } from "./client";
 
+export async function signup(username, password, givenName, familyName) {
+  return apiFetch("/api/auth/signup/", {
+    method: "POST",
+    body: JSON.stringify({ username, password, given_name: givenName, family_name: familyName }),
+  });
+}
+
 export async function login(username, password) {
   return apiFetch("/api/auth/login/", {
     method: "POST",

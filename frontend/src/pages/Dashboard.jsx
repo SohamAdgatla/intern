@@ -13,7 +13,7 @@ import { useRiskAssessment } from "../hooks/useRiskAssessment";
 import { useTimeline } from "../hooks/useTimeline";
 import { buildDashboardStats } from "../utils/dashboardStats";
 
-export default function Dashboard({ onAddData }) {
+export default function Dashboard({ userName, onAddData, onOpenProfile, onLogout }) {
   const timeline = useTimeline({ types: "observation,condition,medication" });
   const healthStory = useHealthStory(24);
   const risk = useRiskAssessment();
@@ -52,12 +52,22 @@ export default function Dashboard({ onAddData }) {
       <DashboardLayout
         stats={stats}
         patientId={timeline.data?.patient_id}
+        userName={userName}
         onRefresh={handleRefresh}
         refreshing={refreshing}
         onAddData={onAddData}
+        onOpenProfile={onOpenProfile}
+        onLogout={onLogout}
       >
         {({ scrollToSection }) => (
           <div className="mx-auto max-w-7xl space-y-10">
+            <OverviewSection
+              stats={stats}
+              risk={risk}
+              alerts={alerts}
+              onNavigate={scrollToSection}
+            />
+
             <OverviewSection
               stats={stats}
               risk={risk}
